@@ -15,5 +15,10 @@ You can also use this script for your own blogs (given they're `.md` files). All
 
 # To run:
 
-`npm run build`
-`npm start`
+```sh
+npm run build
+```
+
+```sh
+npm start
+```
