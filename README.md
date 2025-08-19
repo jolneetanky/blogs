@@ -1,9 +1,9 @@
-`src/index.ts` contains a script to update Supabase with the blogs in my local filesystem.
+`src/index.ts` contains a script to update Supabase with the blogs in your local filesystem.
 
 When run, this script does a few things:
 
 1. Pushes all newly created blogs in `process.env.BLOG_PATH` to supabase (by checking if the name exists in the supabase bucket)
-2. Check if an entry has been modified (not sure how, maybe check the obsidian modified time against supabsae upload time for the file)
+2. Check if an entry has been modified (by comparing last updated timestamps)
 3. If modified -> delete and upload file
 4. Same for images in `process.env.IMAGE_PATH`.
 
