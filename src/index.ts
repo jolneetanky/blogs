@@ -3,10 +3,6 @@ import dotenv from "dotenv";
 
 // load env variables
 dotenv.config();
-// when run, this script does a few things:
-// 1) pushes all newly created blogs in "/blogs" to supabase (by checking if the name exists in the supabase bucket)
-// 2) check if an entry has been modified (not sure how, maybe check the obsidian modified time against supabsae upload time for the file)
-// 3) if modified -> delete and upload file
 
 // same for images
 import { createClient } from "@supabase/supabase-js";
@@ -14,9 +10,8 @@ import type { FileObject } from "@supabase/storage-js";
 
 // Create a single supabase client for interacting with your database
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
-  //   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 const uploadBlog = async (fname: string) => {
