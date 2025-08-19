@@ -1,0 +1,14 @@
+.env
+
+# Ignore Obsidian config
+.obsidian/
+
+# Ignore all markdown files
+*.md
+
+# Ignore images folder
+images/
+
+# Ignore blogs
+blogs/
+
