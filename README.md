@@ -14,7 +14,7 @@ You can also use this script for your own blogs (given they're `.md` files). All
 2. Get the Supabase API Service Role key for your project.
 3. Have a local directory to store your blogs. You can edit it however you like, personally I use Obsidian.
 4. Edit your blogs as you like.
-5. Run the script (`npm run dev`) to sync the blogs and images in your local filesystem with your Supabase buckets.
+5. Run the script (`npm start`) to sync the blogs and images in your local filesystem with your Supabase buckets.
 
 # To build:
 
