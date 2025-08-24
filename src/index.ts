@@ -1,4 +1,3 @@
-import fs from "fs";
 import dotenv from "dotenv";
 
 // load env variables
