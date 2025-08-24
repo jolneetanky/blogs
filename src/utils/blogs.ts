@@ -51,17 +51,19 @@ const _uploadBlog = async (fname: string) => {
   }
 };
 
-const _deleteBlog = async (fname: string) => {
-  console.log(`[_deleteBlog()] Deleting blog ${fname} from Supabase...`);
+const _removeBlog = async (fname: string) => {
+  console.log(`[_removeBlog()] Removing blog ${fname} from Supabase...`);
 
   const { data, error } = await supabase.storage
     .from(process.env.SUPABASE_CONTENT_BUCKET_NAME!)
     .remove([fname]);
 
   if (error) {
-    console.error("[_deleteBlog()] Failed to delete file from supabase", error);
+    console.error("[_removeBlog()] Failed to remove blog from supabase", error);
   } else {
-    console.log(`[_deleteBlog()] Successfully uploaded file ${fname}`);
+    console.log(
+      `[_removeBlog()] Successfully removed blog ${fname} from Supabase`
+    );
   }
 };
 
@@ -101,12 +103,7 @@ export const pushBlogs = async (
     const supabaseDate = supabaseFileMap[fname];
 
     if (lastModifiedDate > supabaseDate) {
-      // if file has been updated,
-      // 1. delete it from supabase
-      //   await supabase.storage
-      //     .from(process.env.SUPABASE_CONTENT_BUCKET_NAME!)
-      //     .remove([fname]);
-      await _deleteBlog(fname);
+      await _removeBlog(fname);
 
       // 2. reupload
       await _uploadBlog(fname);
@@ -121,13 +118,13 @@ export const pruneBlogs = async (
   supabaseFiles: FileObject[],
   localFiles: string[]
 ) => {
-  console.log("[pruneBlogs()]");
+  console.log("[pruneBlogs()] Pruning blogs from Supabase...");
 
   const localFileSet = new Set<string>(localFiles);
 
   for (const supabaseFile of supabaseFiles) {
     if (!localFileSet.has(supabaseFile.name)) {
-      await _deleteBlog(supabaseFile.name);
+      await _removeBlog(supabaseFile.name);
     }
   }
 };

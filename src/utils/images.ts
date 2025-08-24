@@ -1,9 +1,38 @@
 import fs from "fs";
 import { supabase } from "./supabase.js";
+import type { FileObject } from "@supabase/storage-js";
 
+/**
+ * Gets local image files and returns an array of their filenames.
+ */
 export const getLocalImageFiles = () => {
+  console.log("[getLocalImageFiles()] Fetching local image files...");
   const localFiles = fs.readdirSync(process.env.IMAGE_PATH!);
   return localFiles;
+};
+
+/**
+ * Gets image files from Supabase, returning an array of these files.
+ * @returns {FileObject[]}
+ */
+export const getSupabaseImageFiles = async (): Promise<FileObject[]> => {
+  console.log(
+    "[getSupabaseImageFiles()] Fetching image files from Supabase..."
+  );
+
+  const { data: supabaseFiles, error } = await supabase.storage
+    .from(process.env.SUPABASE_IMAGE_BUCKET_NAME!)
+    .list();
+  // .then((res) => res.data ?? []);
+
+  if (error) {
+    console.error(
+      "[getSupabaseImageFiles()] Failed to fetch image files from Supabase"
+    );
+    throw Error(`Failed to fetch image files from Supabase.`);
+  }
+
+  return supabaseFiles ?? [];
 };
 
 /**
@@ -29,7 +58,7 @@ const _uploadImage = async (fname: string) => {
 };
 
 const _removeImage = async (fname: string) => {
-  console.log(`[_removeImage()] Removing image ${fname}... from Supabase...`);
+  console.log(`[_removeImage()] Removing image ${fname} from Supabase...`);
 
   const { error } = await supabase.storage
     .from(process.env.SUPABASE_IMAGE_BUCKET_NAME!)
@@ -41,28 +70,18 @@ const _removeImage = async (fname: string) => {
       error
     );
   } else {
-    console.log("[_removeImage()] Successfully upload image from Supabase");
+    console.log("[_removeImage()] Successfully remove image from Supabase");
   }
 };
 
 /**
  * Pushes images in local fs to Supabase
  */
-export const pushImages = async () => {
-  console.log("[pushImages()]");
-
-  // 1. get list of local images
-  const localFiles = fs.readdirSync(process.env.IMAGE_PATH!);
-
-  // 2. get list of files on supabase
-  const supabaseFiles = await supabase.storage
-    .from(process.env.SUPABASE_IMAGE_BUCKET_NAME!)
-    .list()
-    .then((res) => res.data ?? []);
-
-  if (supabaseFiles === undefined) {
-    throw new Error("Failed to get supabase files");
-  }
+export const pushImages = async (
+  localFiles: string[],
+  supabaseFiles: FileObject[]
+) => {
+  console.log("[pushImages()] Pushing images from local fs to Supabase...");
 
   // map name -> file obj
   const supabaseFileMap: Record<string, Date> = {};
@@ -92,6 +111,24 @@ export const pushImages = async () => {
     if (lastModifiedDate > supabaseDate) {
       await _removeImage(fname);
       await _uploadImage(fname);
+    }
+  }
+};
+
+/**
+ * Prune images from Supabase that don't exist in local fs
+ */
+export const pruneImages = async (
+  localFiles: string[],
+  supabaseFiles: FileObject[]
+) => {
+  console.log("[pruneImages()] Pruning images from Supabase...");
+
+  const localFileSet = new Set<string>(localFiles);
+
+  for (const supabaseFile of supabaseFiles) {
+    if (!localFileSet.has(supabaseFile.name)) {
+      await _removeImage(supabaseFile.name);
     }
   }
 };
